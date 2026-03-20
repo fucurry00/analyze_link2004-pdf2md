@@ -1,187 +1,107 @@
-[日本語版 readme はこちら](./README-ja.md)
+# pdf2md — Extracted Core
 
-# PDF to Markdown
+PDF/画像からMarkdownへの変換コア機能。Mistral OCR APIを直接利用し、S3依存なし。
 
-This application is a tool for uploading PDF files and analyzing their content using Mistral AI's OCR capabilities.
+## 必要条件
 
-## Getting Mistral AI API Key
+- `MISTRAL_API_KEY` 環境変数
+- **TypeScript版**: Node.js 18+
+- **Python版**: Python 3.10+
 
-1. Access [Mistral AI](https://mistral.ai/) to create an account or log in
-2. Generate an API key from the dashboard
-3. Store the generated API key securely
-
-## Vercel Blob Setup
-
-Before deploying the application, you need to set up Vercel Blob storage:
-
-1. **Create a Vercel project**
-
-   - Access [Vercel](https://vercel.com/) to sign up/log in
-   - Click "New Project" to create a new project
-
-2. **Create a Vercel Blob store**
-
-   - Select the "Storage" tab in the project dashboard
-   - Click the "Connect Database" button
-   - Select "Blob" in the "Create New" tab and click the "Continue" button
-   - Configure the following settings:
-     - Name: Any name (e.g., "PDF Storage")
-     - Select "Create a new Blob store"
-     - Select the environments where you want to add environment variables (typically all environments)
-     - Optionally change the environment variable prefix in "Advanced Options"
-   - Click the "Create" button to create the store
-
-3. **Set up environment variables**
-
-   - When the Blob store is created, the following environment variable will be automatically added to your project:
-     - `BLOB_READ_WRITE_TOKEN`
-   - To use this environment variable in your local development environment, pull the environment variables using Vercel CLI:
-     ```bash
-     vercel env pull
-     ```
-
-Once these settings are complete, you can proceed with deploying the application.
-
-## Deploy on Vercel
-
-Follow these steps to deploy the application on Vercel:
-
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/link2004/pdf2md.git
-   cd pdf2md
-   ```
-
-2. **Copy the .env.example file**
-
-   ```bash
-   cp .env.example .env
-   ```
-
-3. **Set up the required environment variables in the .env file**
-
-   - Get `BLOB_READ_WRITE_TOKEN` from your Vercel dashboard and set it
-   - Get `MISTRAL_API_KEY` from your Mistral AI account and set it
-
-   ```
-   MISTRAL_API_KEY=your_mistral_api_key
-   BLOB_READ_WRITE_TOKEN=your_blob_read_write_token
-   ```
-
-4. **Deploy to Vercel**
-
-   - Log in or create an account on [Vercel](https://vercel.com)
-   - Click on "New Project"
-   - Import your repository from GitHub
-   - Add the same environment variables as in your `.env` file in the "Environment Variables" section
-   - Click on the "Deploy" button
-
-5. **Verify the deployment**
-   - Once deployment is complete, access the provided URL to confirm that the application is working properly
-
-Note: Environment variables contain sensitive information, so do not commit your `.env` file to public repositories like GitHub. Instead, set the environment variables directly in the Vercel dashboard.
-
-## Features
-
-- PDF file upload
-- PDF storage in Vercel Blob
-- PDF analysis using Mistral AI's OCR capabilities
-- Display and editing of analysis results
-- Export functionality in Markdown format
-
-## Environment Setup
-
-Set the following environment variables in your `.env.local` file:
-
-```
-# Vercel Blob settings
-BLOB_READ_WRITE_TOKEN=your_blob_read_write_token
-
-# Mistral AI settings
-MISTRAL_API_KEY=your_mistral_api_key
-```
-
-## Using the Application
-
-### Initial Setup
-
-1. Access the application and register/login if required
-2. Create a "New Project" from the home page
-
-### Uploading and Analyzing PDFs
-
-1. Click on the "Upload PDF" button to open the file selection dialog
-2. Select the PDF file you want to analyze (multiple files are also supported)
-   - Note: For server uploads, file size must be 20MB or less
-   - Try clearing your browser cache if you encounter issues
-3. Click on the "Upload" button to upload the PDF to Vercel Blob storage
-4. After the upload is complete, click on the "Analyze with Mistral AI" button
-5. Wait a few seconds to minutes for the analysis to complete (depending on the size and complexity of the PDF)
-
-### Reviewing and Editing Analysis Results
-
-1. The analysis results will be automatically displayed in Markdown format
-2. You can freely edit the content in the text editor
-3. Click on the "Save" button to save your edits
-4. Use the "Preview" tab to see how the Markdown will be rendered
-
-### Exporting Markdown
-
-1. Click on the "Export" button and select the export format:
-   - Markdown file (.md)
-   - HTML (.html)
-   - PDF (.pdf)
-2. The file will be downloaded in your selected format
-
-### Project Management
-
-1. Access past analysis results from the "Projects" tab
-2. Each project is automatically saved, and you can resume editing at any time
-3. Share your projects with other users using the "Share" button
-
-## Requirements
-
-- Node.js 18 or higher
-- Vercel account (with Blob store set up)
-- Mistral AI account and API key
-
-## Installation
+## セットアップ
 
 ```bash
-# Install dependencies
+# TypeScript版
 npm install
 
-# Run the development server
-npm run dev
+# Python版
+pip install mistralai
 ```
 
-## Technology Stack
+---
 
-- Next.js
-- TypeScript
-- Vercel Blob (storage)
-- Mistral AI (OCR processing)
-- TailwindCSS (styling)
-- React Markdown (markdown rendering)
+## TypeScript
 
-## Troubleshooting
+### CLI
 
-- **Unable to upload PDF**
+```bash
+npx tsx extracted/cli.ts input.pdf                        # stdout出力
+npx tsx extracted/cli.ts input.pdf -o output.md           # ファイル出力
+npx tsx extracted/cli.ts input.pdf -o output.md --no-images
+npx tsx extracted/cli.ts photo.png -o output.md           # 画像も対応
+```
 
-  - Ensure the file size is 20MB or less (for server uploads)
-  - Try clearing your browser cache
+### ライブラリ
 
-- **Analysis fails**
+```typescript
+import { convertPdfToMarkdown, convertImageToMarkdown } from "./extracted/pdf2md.js";
 
-  - Check if the PDF is encrypted
-  - For scanned PDFs, check if the image quality is sufficient
+const result = await convertPdfToMarkdown("document.pdf");
+console.log(result.markdown);
 
-- **API errors displayed**
-  - Verify that environment variables are correctly set
-  - Check the expiration date and usage limits of your Mistral API key
-  - Ensure that your Vercel Blob token is valid
+const imgResult = await convertImageToMarkdown("photo.png", {
+  includeImageBase64: false,
+});
+```
 
-## License
+---
 
-This project is released under the MIT License. See the [LICENSE](./LICENSE) file for details.
+## Python
+
+### CLI
+
+```bash
+python extracted/cli.py input.pdf                         # stdout出力
+python extracted/cli.py input.pdf -o output.md            # ファイル出力
+python extracted/cli.py input.pdf -o output.md --no-images
+python extracted/cli.py photo.png -o output.md            # 画像も対応
+```
+
+### ライブラリ
+
+```python
+from extracted.pdf2md import convert_pdf_to_markdown, convert_image_to_markdown
+
+result = convert_pdf_to_markdown("document.pdf")
+print(result.markdown)
+print(f"{len(result.pages)} pages")
+
+img_result = convert_image_to_markdown("photo.png", include_image_base64=False)
+
+# APIキーを直接渡す
+result2 = convert_pdf_to_markdown("document.pdf", api_key="your-api-key")
+```
+
+---
+
+## API
+
+両言語とも同じインターフェース。
+
+### `convertPdfToMarkdown` / `convert_pdf_to_markdown`
+
+PDFファイルをMarkdownに変換。
+
+- `pdfPath` / `pdf_path` — PDFファイルのパス
+- `includeImageBase64` / `include_image_base64` — 画像Base64データを含めるか（デフォルト: `true`）
+- `apiKey` / `api_key` — Mistral APIキー（デフォルト: `MISTRAL_API_KEY`環境変数）
+
+### `convertImageToMarkdown` / `convert_image_to_markdown`
+
+画像ファイルをMarkdownに変換。対応形式: PNG, JPG, GIF, WebP, BMP, TIFF
+
+### 戻り値: `ConvertResult`
+
+```
+{
+  pages: [{ index, markdown, images: [{ id, image_base64? }] }]
+  markdown: string    // 全ページ結合
+}
+```
+
+## 設計判断
+
+- **S3不要**: Mistral OCR APIはBase64データURLを直接受け取れるため、S3を経由する必要がない
+- **環境変数1つ**: `MISTRAL_API_KEY`のみ必要（元アプリはAWS認証情報も必要だった）
+- **外部依存最小**: Mistral SDKのみ。CLIの引数パースも標準ライブラリで直接処理
+- **TypeScript/Python同一設計**: 同じAPI構造、同じCLIインターフェース
