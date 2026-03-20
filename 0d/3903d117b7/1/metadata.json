@@ -1,0 +1,38 @@
+{
+  "cli_version": "0.5.0",
+  "checkpoint_id": "0d3903d117b7",
+  "session_id": "b4e357b7-9846-4959-98e8-e08a3c5e2d8e",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-20T10:41:36.965357Z",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    ".claude/CLAUDE.md",
+    ".claude/settings.json",
+    ".gemini/settings.json",
+    ".github/hooks/entire.json",
+    "analyze/extraction-design.md",
+    "analyze/pdf-to-md-process.md"
+  ],
+  "agent": "Claude Code",
+  "turn_id": "06e7d9f248c7",
+  "token_usage": {
+    "input_tokens": 32,
+    "cache_creation_tokens": 34819,
+    "cache_read_tokens": 759974,
+    "output_tokens": 11837,
+    "api_call_count": 24
+  },
+  "session_metrics": {
+    "turn_count": 2
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-20T10:41:36.877354Z",
+    "agent_lines": 506,
+    "human_added": 15477,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 15983,
+    "agent_percentage": 3.1658637302133514
+  }
+}
